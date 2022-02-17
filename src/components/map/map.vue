@@ -1,6 +1,10 @@
 <template>
   <!-- 地图容器 用来挂载显示地图 -->
-  <div id="map"></div>
+  <div>
+    <div id="map"></div>
+    <button @click="handleBtnBig">放大</button>
+    <button @click="handleBtnSmall">缩小</button>
+  </div>
 </template>
 
 <script>
@@ -11,7 +15,10 @@ import TileLayer from 'ol/layer/Tile'
 import OSM from 'ol/source/OSM'
 export default {
   data () {
-    return {}
+    return {
+      // 地图对象
+      map: null
+    }
   },
   mounted () {
     // 初始化地图
@@ -34,6 +41,24 @@ export default {
         zoom: 2
       })
     })
+  },
+  methods: {
+    // 放大
+    handleBtnBig () {
+      const { view, zoom } = this.getMapZoom()
+      view.setZoom(zoom + 1)
+    },
+    // 缩小
+    handleBtnSmall () {
+      const { view, zoom } = this.getMapZoom()
+      view.setZoom(zoom - 1)
+    },
+    // 获取地图缩放级别
+    getMapZoom () {
+      const view = this.map.getView()
+      const zoom = view.getZoom()
+      return { view, zoom }
+    }
   }
 }
 </script>
