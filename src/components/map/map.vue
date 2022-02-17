@@ -29,6 +29,7 @@ export default {
       // 图层是用包含源的类型(图形、平铺或者矢量)来创建的。源是用于获取地图图块的协议
       layers: [
         new TileLayer({
+          // OSM地图
           source: new OSM()
         })
       ],
@@ -55,7 +56,9 @@ export default {
     },
     // 获取地图缩放级别
     getMapZoom () {
+      // 获取视图
       const view = this.map.getView()
+      // 获取缩放级别
       const zoom = view.getZoom()
       return { view, zoom }
     }
