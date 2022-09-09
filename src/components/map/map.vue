@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-09 15:36:59
+ * @LastEditTime: 2022-09-09 17:16:00
  * @Description:
 -->
 <template>
@@ -11,6 +11,7 @@
     <button @click="handleBtnBig">放大</button>
     <button @click="handleBtnSmall">缩小</button>
     <button @click="handleBaiduLayerAdd">加载百度地图</button>
+    <button @click="handleBaiduLayerAdd2">加载百度地图--分辨率</button>
     <div id="map"></div>
   </div>
 </template>
@@ -22,6 +23,10 @@ import { Map, View } from 'ol'
 import TileLayer from 'ol/layer/Tile'
 // import OSM from 'ol/source/OSM'
 import XYZ from 'ol/source/XYZ'
+import TileImage from 'ol/source/TileImage'
+import TileGrid from 'ol/tilegrid/TileGrid'
+import { transform, addProjection, addCoordinateTransforms } from 'ol/proj'
+import Projection from 'ol/proj/Projection'
 
 export default {
   data () {
@@ -62,14 +67,79 @@ export default {
       // 初始化视图
       // 视图允许指定地图的中心点、缩放级别、分辨率、视图方向等
       view: new View({
-        // 中心点 指定的是经度/纬度坐标  成都的坐标
-        center: [103.37515728753266, 30.59996766676398],
+        // 中心点 指定的是经度/纬度坐标  成都的坐标  transform坐标转换,将4326坐标系的坐标[104.06, 30.67]转成3857坐标系里的坐标
+        center: transform([104.06, 30.67], 'EPSG:4326', 'EPSG:3857'),
         // 缩放级别
-        zoom: 2
+        zoom: 10
+
       })
     })
   },
   methods: {
+    // 叠加百度地图 -- 分辨率
+    handleBaiduLayerAdd2 () {
+      const projBD09 = new Projection({
+        code: 'BD:09',
+        extent: [-20037726.37, -11708041.66, 20037726.37, 12474104.17],
+        units: 'm',
+        axisOrientation: 'neu',
+        global: false
+      })
+
+      addProjection(projBD09)
+      addCoordinateTransforms('EPSG:4326', 'BD:09', function (coordinate) {
+        console.log('1', arguments)
+      }, function (coordinate) {
+        console.log('2', arguments)
+      }
+      )
+
+      this.map.setView({
+        center: transform([113.03914, 28.20354], 'EPSG:4326', 'BD:09'),
+        projection: 'BD:09'
+      })
+
+      // 自定义分辨率和瓦片坐标系
+      const resolutions = []
+      const maxZoom = 18
+
+      // 计算百度使用的分辨率
+      for (let i = 0; i <= maxZoom; i++) {
+        resolutions[i] = Math.pow(2, maxZoom - i)
+      }
+
+      console.log(resolutions)
+
+      const tilegrid = new TileGrid({
+        origin: [0, 0], // 设置原点坐标
+        resolutions: resolutions
+      })
+
+      this.map.removeLayer(this.map.getLayers().item(0)) // 移除地图
+      const BaiDuSource = new TileImage({
+        projection: 'BD:09', // 投影
+        tileGrid: tilegrid,
+        tileUrlFunction: function (tileCoord, tilePixelRatio, projection) {
+          const z = tileCoord[0]
+          let x = tileCoord[1]
+          let y = tileCoord[2]
+
+          // 百度瓦片服务url将负数使用M前缀来标识
+          if (x < 0) {
+            x = 'M' + (-x)
+          }
+          if (y < 0) {
+            y = 'M' + (-y)
+          }
+
+          return `http://online0.map.bdimg.com/onlinelabel/?qt=tile&x=${x}&y=${y}&z=${z}&styles=pl&udt=20160426&scaler=1&p=0`
+        }
+      })
+      const BaiDuLayer = new TileLayer({
+        source: BaiDuSource
+      })
+      this.map.addLayer(BaiDuLayer)
+    },
     // 叠加百度地图
     handleBaiduLayerAdd () {
       console.log(this.map.getLayers().item(0))
@@ -138,7 +208,7 @@ export default {
 
 <style lang="scss" scoped>
 #map {
-  width: 500px;
+  width: 100%;
   height: 500px;
   border: 1px solid #ccc;
 }
