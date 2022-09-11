@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-11 16:51:29
+ * @LastEditTime: 2022-09-11 19:44:56
  * @Description:
 -->
 <template>
@@ -14,6 +14,7 @@
     <button @click="handleBaiduLayerAdd2">加载百度地图--分辨率</button>
     <button @click="addGeoJSON">叠加geojson</button>
     <button  @click="zoomToGeoJSON">定位到geojson的第一个feature--锦江区</button>
+    <button @click="addArcGisRESTFeatureService">叠加ArcGis服务</button>
     <div id="map"></div>
   </div>
 </template>
@@ -30,9 +31,10 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import { transform, addProjection, addCoordinateTransforms } from 'ol/proj'
 import Projection from 'ol/proj/Projection'
 import AdvanceViewPosition from './utils/AdvanceViewPosition'
+import addArcGisRESTFeatureService from './utils/addArcGisRESTFeatureService'
 
 export default {
-  mixins: [AdvanceViewPosition],
+  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService],
   data () {
     return {
       // 地图对象
