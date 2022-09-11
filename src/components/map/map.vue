@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-09 17:16:00
+ * @LastEditTime: 2022-09-11 16:51:29
  * @Description:
 -->
 <template>
@@ -12,6 +12,8 @@
     <button @click="handleBtnSmall">缩小</button>
     <button @click="handleBaiduLayerAdd">加载百度地图</button>
     <button @click="handleBaiduLayerAdd2">加载百度地图--分辨率</button>
+    <button @click="addGeoJSON">叠加geojson</button>
+    <button  @click="zoomToGeoJSON">定位到geojson的第一个feature--锦江区</button>
     <div id="map"></div>
   </div>
 </template>
@@ -27,8 +29,10 @@ import TileImage from 'ol/source/TileImage'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { transform, addProjection, addCoordinateTransforms } from 'ol/proj'
 import Projection from 'ol/proj/Projection'
+import AdvanceViewPosition from './utils/AdvanceViewPosition'
 
 export default {
+  mixins: [AdvanceViewPosition],
   data () {
     return {
       // 地图对象
@@ -70,8 +74,9 @@ export default {
         // 中心点 指定的是经度/纬度坐标  成都的坐标  transform坐标转换,将4326坐标系的坐标[104.06, 30.67]转成3857坐标系里的坐标
         center: transform([104.06, 30.67], 'EPSG:4326', 'EPSG:3857'),
         // 缩放级别
-        zoom: 10
-
+        zoom: 10,
+        // 视口边距
+        padding: [170, 50, 30, 150]
       })
     })
   },
