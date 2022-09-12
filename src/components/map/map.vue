@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-12 15:09:42
+ * @LastEditTime: 2022-09-12 16:08:53
  * @Description:
 -->
 <template>
@@ -17,6 +17,7 @@
     <button @click="addArcGisRESTFeatureService">叠加ArcGis服务</button>
     <button @click="boxSelection">给GeoJSON增加选择事件</button>
     <p>现在选中的是：{{selectPosition}}</p>
+    <button @click="CanvasTile">CanvasTile</button>
     <div id="map"></div>
   </div>
 </template>
@@ -35,9 +36,10 @@ import Projection from 'ol/proj/Projection'
 import AdvanceViewPosition from './utils/AdvanceViewPosition'
 import addArcGisRESTFeatureService from './utils/addArcGisRESTFeatureService'
 import BoxSelection from './utils/BoxSelection'
+import CanvasTile from './utils/CanvasTiles'
 
 export default {
-  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService, BoxSelection],
+  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService, BoxSelection, CanvasTile],
   data () {
     return {
       // 地图对象
