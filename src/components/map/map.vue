@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-11 19:44:56
+ * @LastEditTime: 2022-09-12 15:09:42
  * @Description:
 -->
 <template>
@@ -15,6 +15,8 @@
     <button @click="addGeoJSON">叠加geojson</button>
     <button  @click="zoomToGeoJSON">定位到geojson的第一个feature--锦江区</button>
     <button @click="addArcGisRESTFeatureService">叠加ArcGis服务</button>
+    <button @click="boxSelection">给GeoJSON增加选择事件</button>
+    <p>现在选中的是：{{selectPosition}}</p>
     <div id="map"></div>
   </div>
 </template>
@@ -32,9 +34,10 @@ import { transform, addProjection, addCoordinateTransforms } from 'ol/proj'
 import Projection from 'ol/proj/Projection'
 import AdvanceViewPosition from './utils/AdvanceViewPosition'
 import addArcGisRESTFeatureService from './utils/addArcGisRESTFeatureService'
+import BoxSelection from './utils/BoxSelection'
 
 export default {
-  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService],
+  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService, BoxSelection],
   data () {
     return {
       // 地图对象
