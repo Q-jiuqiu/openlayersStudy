@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-12 16:08:53
+ * @LastEditTime: 2022-09-13 10:33:48
  * @Description:
 -->
 <template>
@@ -18,6 +18,17 @@
     <button @click="boxSelection">给GeoJSON增加选择事件</button>
     <p>现在选中的是：{{selectPosition}}</p>
     <button @click="CanvasTile">CanvasTile</button>
+    <div>
+      <button @click="addLayer">添加图层</button>
+      Show european countries larger than <Select @on-select='handleSelectChange' style="width:200px">
+        <Option value="0">0</Option>
+        <Option value="5000">5000</Option>
+        <Option value="10000">10000</Option>
+        <Option value="15000">15000</Option>
+        <Option value="100000">100000</Option>
+      </Select>
+      km<sup>2</sup>
+    </div>
     <div id="map"></div>
   </div>
 </template>
@@ -37,9 +48,10 @@ import AdvanceViewPosition from './utils/AdvanceViewPosition'
 import addArcGisRESTFeatureService from './utils/addArcGisRESTFeatureService'
 import BoxSelection from './utils/BoxSelection'
 import CanvasTile from './utils/CanvasTiles'
+import CartoDBSource from './utils/CartoDBSource'
 
 export default {
-  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService, BoxSelection, CanvasTile],
+  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService, BoxSelection, CanvasTile, CartoDBSource],
   data () {
     return {
       // 地图对象
@@ -88,6 +100,10 @@ export default {
     })
   },
   methods: {
+    // 添加图层
+    addLayer (layers) {
+      this.map.addLayer(layers)
+    },
     // 叠加百度地图 -- 分辨率
     handleBaiduLayerAdd2 () {
       const projBD09 = new Projection({
