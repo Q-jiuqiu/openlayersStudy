@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-13 10:33:48
+ * @LastEditTime: 2022-09-13 15:28:12
  * @Description:
 -->
 <template>
@@ -40,6 +40,10 @@ import { Map, View } from 'ol'
 import TileLayer from 'ol/layer/Tile'
 // import OSM from 'ol/source/OSM'
 import XYZ from 'ol/source/XYZ'
+// 控制缩放的滑块
+import ZoomSlider from 'ol/control/ZoomSlider'
+// 配置默认情况下的控件
+import {defaults as defaultControls} from 'ol/control'
 import TileImage from 'ol/source/TileImage'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { transform, addProjection, addCoordinateTransforms } from 'ol/proj'
@@ -96,7 +100,11 @@ export default {
         zoom: 10,
         // 视口边距
         padding: [170, 50, 30, 150]
-      })
+      }),
+      // 监听键盘事件,主要用户决定键盘平移和缩放的交互
+      keyboardEventTarget: document,
+      // 控件
+      controls: defaultControls().extend([new ZoomSlider()])
     })
   },
   methods: {
