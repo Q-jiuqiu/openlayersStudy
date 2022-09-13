@@ -2,7 +2,7 @@
  * @Author: quling
  * @Date: 2022-02-16 17:29:26
  * @LastEditors: quling
- * @LastEditTime: 2022-09-13 15:28:12
+ * @LastEditTime: 2022-09-13 17:16:21
  * @Description:
 -->
 <template>
@@ -13,14 +13,22 @@
     <button @click="handleBaiduLayerAdd">加载百度地图</button>
     <button @click="handleBaiduLayerAdd2">加载百度地图--分辨率</button>
     <button @click="addGeoJSON">叠加geojson</button>
-    <button  @click="zoomToGeoJSON">定位到geojson的第一个feature--锦江区</button>
+    <button @click="zoomToGeoJSON">定位到geojson的第一个feature--锦江区</button>
     <button @click="addArcGisRESTFeatureService">叠加ArcGis服务</button>
     <button @click="boxSelection">给GeoJSON增加选择事件</button>
     <p>现在选中的是：{{selectPosition}}</p>
     <button @click="CanvasTile">CanvasTile</button>
+    <button @click="customControl">增加自定义的控件</button>
+    <div
+      class="control"
+      ref="control"
+    ></div>
     <div>
       <button @click="addLayer">添加图层</button>
-      Show european countries larger than <Select @on-select='handleSelectChange' style="width:200px">
+      Show european countries larger than <Select
+        @on-select='handleSelectChange'
+        style="width:200px"
+      >
         <Option value="0">0</Option>
         <Option value="5000">5000</Option>
         <Option value="10000">10000</Option>
@@ -43,7 +51,7 @@ import XYZ from 'ol/source/XYZ'
 // 控制缩放的滑块
 import ZoomSlider from 'ol/control/ZoomSlider'
 // 配置默认情况下的控件
-import {defaults as defaultControls} from 'ol/control'
+import { defaults as defaultControls } from 'ol/control'
 import TileImage from 'ol/source/TileImage'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { transform, addProjection, addCoordinateTransforms } from 'ol/proj'
@@ -53,9 +61,16 @@ import addArcGisRESTFeatureService from './utils/addArcGisRESTFeatureService'
 import BoxSelection from './utils/BoxSelection'
 import CanvasTile from './utils/CanvasTiles'
 import CartoDBSource from './utils/CartoDBSource'
+import CustomControl from './utils/CustomControl'
 
 export default {
-  mixins: [AdvanceViewPosition, addArcGisRESTFeatureService, BoxSelection, CanvasTile, CartoDBSource],
+  mixins: [
+    AdvanceViewPosition,
+    addArcGisRESTFeatureService,
+    BoxSelection,
+    CanvasTile,
+    CartoDBSource
+  ],
   data () {
     return {
       // 地图对象
@@ -85,9 +100,8 @@ export default {
             // url: 'http://webst0{1-4}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
 
             // Yahoo地图
-          //   tileSize: 512, // 切片服务使用的切片大小
-          //   url: 'https://{0-3}.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/512/png8?lg=ENG&ppi=250&token=TrLJuXVK62IQk0vuXFzaig%3D%3D&requestid=yahoo.prod&app_id=eAdkWGYRoc4RfxVo0Z4B'
-
+            //   tileSize: 512, // 切片服务使用的切片大小
+            //   url: 'https://{0-3}.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/512/png8?lg=ENG&ppi=250&token=TrLJuXVK62IQk0vuXFzaig%3D%3D&requestid=yahoo.prod&app_id=eAdkWGYRoc4RfxVo0Z4B'
           })
         })
       ],
@@ -103,11 +117,34 @@ export default {
       }),
       // 监听键盘事件,主要用户决定键盘平移和缩放的交互
       keyboardEventTarget: document,
-      // 控件
+      // 控件 extend 向集合中添加元素。这将提供的数组中的每个项推送到集合的末尾
       controls: defaultControls().extend([new ZoomSlider()])
     })
   },
   methods: {
+    // 自定义控件
+    customControl () {
+      const button = document.createElement('button')
+      button.innerHTML = 'N'
+
+      const element = document.createElement('div')
+      element.className = 'rotate-north ol-unselectable ol-control'
+      element.appendChild(button)
+      button.addEventListener(
+        'click',
+        () => {
+          console.log('click')
+        },
+        false
+      )
+
+      const control = new CustomControl({
+        element: element, // 自定义的控件dom元素,
+        target: this.$refs.control // 需挂载的dom节点 如果不指定则默认挂载在左上角
+      })
+      this.map.addControl(control)
+    },
+
     // 添加图层
     addLayer (layers) {
       this.map.addLayer(layers)
@@ -123,11 +160,15 @@ export default {
       })
 
       addProjection(projBD09)
-      addCoordinateTransforms('EPSG:4326', 'BD:09', function (coordinate) {
-        console.log('1', arguments)
-      }, function (coordinate) {
-        console.log('2', arguments)
-      }
+      addCoordinateTransforms(
+        'EPSG:4326',
+        'BD:09',
+        function (coordinate) {
+          console.log('1', arguments)
+        },
+        function (coordinate) {
+          console.log('2', arguments)
+        }
       )
 
       this.map.setView({
@@ -162,10 +203,10 @@ export default {
 
           // 百度瓦片服务url将负数使用M前缀来标识
           if (x < 0) {
-            x = 'M' + (-x)
+            x = 'M' + -x
           }
           if (y < 0) {
-            y = 'M' + (-y)
+            y = 'M' + -y
           }
 
           return `http://online0.map.bdimg.com/onlinelabel/?qt=tile&x=${x}&y=${y}&z=${z}&styles=pl&udt=20160426&scaler=1&p=0`
@@ -247,5 +288,17 @@ export default {
   width: 100%;
   height: 500px;
   border: 1px solid #ccc;
+}
+.control {
+  width: 50px;
+  height: 50px;
+  background: pink;
+}
+.rotate-north {
+  top: 65px;
+  left: 0.5em;
+}
+.ol-touch .rotate-north {
+  top: 80px;
 }
 </style>
